@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelSnake | Classic Arcade Game</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary: #34C759;
+            --secondary: #FF9500;
+            --dark: #1C1C1E;
+            --light: #F5F5F7;
+            --accent: #007AFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            color: var(--light);
+            padding: 2rem;
+        }
+
+        .page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(52, 199, 89, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+
+        .game-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .game-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        canvas {
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(52, 199, 89, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .controls {
+            position: absolute;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-primary {
+            background: rgba(52, 199, 89, 0.9);
+            color: white;
+            box-shadow: 0 0 20px rgba(52, 199, 89, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 149, 0, 0.9);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 149, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .info-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .info-card li {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .key-badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .score-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .game-container {
+                padding: 10px;
+            }
+
+            .info-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes glow {
+            0% {
+                box-shadow: 0 0 5px var(--primary);
+            }
+            100% {
+                box-shadow: 0 0 20px var(--primary);
+            }
+        }
+
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        /* 全屏模式样式 */
+        .fullscreen-mode {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .fullscreen-mode .game-container {
+            position: relative;
+            width: auto;
+            height: auto;
+            padding: 0;
+            background: none;
+            box-shadow: none;
+        }
+
+        .fullscreen-mode canvas {
+            position: relative;
+            max-width: 95vw;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
+            margin: auto;
+            box-shadow: 0 0 50px rgba(52, 199, 89, 0.2);
+        }
+
+        /* 控制按钮在全屏模式下的样式 */
+        .fullscreen-mode .controls {
+            position: fixed;
+            bottom: 40px;
+            z-index: 10000;
+        }
+
+        .fullscreen-mode .score-display {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        /* 按钮图标样式 */
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* 添加按钮动画效果 */
+        @keyframes buttonPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(52, 199, 89, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(52, 199, 89, 0);
+            }
+        }
+
+        .btn-primary {
+            animation: buttonPulse 2s infinite;
+        }
+
+        /* 添加游戏标题和样式 */
+        .game-title {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 1000;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .game-title h1 {
+            font-size: 42px;
+            color: #34C759;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        .game-title .subtitle {
+            font-size: 16px;
+            color: #8E8E93;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 2px 2px 4px rgba(52, 199, 89, 0.3);
+            }
+            50% {
+                text-shadow: 2px 2px 15px rgba(52, 199, 89, 0.6),
+                             0 0 20px rgba(52, 199, 89, 0.4);
+            }
+            100% {
+                text-shadow: 2px 2px 4px rgba(52, 199, 89, 0.3);
+            }
+        }
+
+        /* 全屏模式下的标题样式 */
+        .fullscreen-mode .game-title {
+            top: 10px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .game-title h1 {
+                font-size: 32px;
+            }
+            .game-title .subtitle {
+                font-size: 14px;
+                letter-spacing: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <h1>PixelSnake</h1>
+            <p>Experience the classic arcade game reimagined for modern browsers</p>
+        </header>
+
+        <main class="game-section">
+            <div class="game-container">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+                <div class="score-display">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Score: <span id="scoreText">0</span>
+                </div>
+                <div class="controls">
+                    <button id="startBtn" class="btn btn-primary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Start Game
+                    </button>
+                    <button id="fullscreenBtn" class="btn btn-secondary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                        </svg>
+                        Fullscreen
+                    </button>
+                </div>
+            </div>
+
+            <section class="info-section">
+                <div class="info-card">
+                    <h3>
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+                        </svg>
+                        Controls
+                    </h3>
+                    <ul>
+                        <li><span class="key-badge">↑</span> Move Up</li>
+                        <li><span class="key-badge">↓</span> Move Down</li>
+                        <li><span class="key-badge">←</span> Move Left</li>
+                        <li><span class="key-badge">→</span> Move Right</li>
+                        <li><span class="key-badge">P</span> Pause Game</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h3>
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Game Rules
+                    </h3>
+                    <ul>
+                        <li>Collect food to grow longer</li>
+                        <li>Avoid hitting the walls</li>
+                        <li>Don't collide with yourself</li>
+                        <li>Score increases with each food collected</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 在 body 中添加音频元素 -->
+    <audio id="bgMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" type="audio/mp3">
+    </audio>
+    <audio id="eatSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" type="audio/mp3">
+    </audio>
+    <audio id="gameOverSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-failure-arcade-alert-notification-240.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- 添加音乐控制按钮 -->
+    <button id="musicToggleBtn" class="control-btn">
+        <svg class="sound-on" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0-12l-4 4H4v4h4l4 4m8-4v-4m0 4v-4"/>
+        </svg>
+        <svg class="sound-off hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+        </svg>
+    </button>
+
+    <!-- 添加速度控制按钮 -->
+    <div class="speed-controls">
+        <button id="speedUpBtn">
+            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+            </svg>
+            Faster
+        </button>
+        <div id="speedIndicator">Speed: 1x</div>
+        <button id="speedDownBtn">
+            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+            </svg>
+            Slower
+        </button>
+    </div>
+
+    <!-- 添加键盘提示 -->
+    <div class="keyboard-hint absolute left-4 bottom-4 text-white text-sm bg-black bg-opacity-50 px-3 py-2 rounded-lg">
+        Tip: Use + / - keys to adjust speed
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const scoreText = document.getElementById('scoreText');
+        const gameContainer = document.querySelector('.game-container');
+
+        // 游戏常量
+        const BLOCK_SIZE = 20;
+        const GAME_SPEED = 10;
+
+        // 游戏状态
+        let gameRunning = false;
+        let gamePaused = false;
+        let snake = {
+            body: [{x: 400, y: 300}],
+            direction: {x: 1, y: 0},
+            score: 0
+        };
+        let food = {x: 0, y: 0};
+        let gameLoop;
+
+        // 添加音频相关变量
+        const bgMusic = document.getElementById('bgMusic');
+        const eatSound = document.getElementById('eatSound');
+        const gameOverSound = document.getElementById('gameOverSound');
+        const musicToggleBtn = document.getElementById('musicToggleBtn');
+        let isMuted = false;
+
+        // 添加速度控制功能
+        let currentSpeed = GAME_SPEED;
+        let speedMultiplier = 1;
+
+        // 2D风格的蛇的样式配置
+        const snakeStyles = {
+            body: {
+                mainColor: '#4CD964',
+                borderColor: '#34C759',
+                cornerRadius: 6
+            },
+            head: {
+                mainColor: '#34C759',
+                borderColor: '#32AE59',
+                eyeColor: '#FFFFFF',
+                pupilColor: '#000000'
+            },
+            patterns: {
+                enabled: true,
+                color: 'rgba(255, 255, 255, 0.15)'
+            }
+        };
+
+        function drawSnake() {
+            // 绘制身体
+            snake.body.forEach((segment, index) => {
+                if (index === 0) {
+                    drawSnakeHead(segment);
+                } else {
+                    drawSnakeBody(segment, index);
+                }
+            });
+        }
+
+        function drawSnakeBody(position, index) {
+            // 基础形状
+            ctx.fillStyle = snakeStyles.body.mainColor;
+            ctx.strokeStyle = snakeStyles.body.borderColor;
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.roundRect(
+                position.x,
+                position.y,
+                BLOCK_SIZE,
+                BLOCK_SIZE,
+                snakeStyles.body.cornerRadius
+            );
+            ctx.fill();
+            ctx.stroke();
+
+            // 添加简单的图案
+            if (snakeStyles.patterns.enabled) {
+                drawSegmentPattern(position);
+            }
+        }
+
+        function drawSegmentPattern(position) {
+            ctx.fillStyle = snakeStyles.patterns.color;
+            
+            // 绘制简单的装饰图案
+            const patternSize = BLOCK_SIZE / 6;
+            const offset = BLOCK_SIZE / 3;
+            
+            ctx.beginPath();
+            ctx.arc(
+                position.x + offset,
+                position.y + offset,
+                patternSize,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+
+        function drawSnakeHead(position) {
+            // 头部基础形状
+            ctx.fillStyle = snakeStyles.head.mainColor;
+            ctx.strokeStyle = snakeStyles.head.borderColor;
+            ctx.lineWidth = 2;
+            
+            ctx.beginPath();
+            ctx.roundRect(
+                position.x,
+                position.y,
+                BLOCK_SIZE,
+                BLOCK_SIZE,
+                snakeStyles.body.cornerRadius
+            );
+            ctx.fill();
+            ctx.stroke();
+
+            // 计算眼睛位置
+            const eyeSize = BLOCK_SIZE / 5;
+            const eyeOffset = BLOCK_SIZE / 3;
+            const eyeY = position.y + BLOCK_SIZE / 2.5;
+
+            // 根据蛇的移动方向调整眼睛位置
+            let leftEyeX = position.x + eyeOffset;
+            let rightEyeX = position.x + BLOCK_SIZE - eyeOffset;
+
+            // 绘制眼睛
+            drawEye(leftEyeX, eyeY, eyeSize);
+            drawEye(rightEyeX, eyeY, eyeSize);
+        }
+
+        function drawEye(x, y, size) {
+            // 眼白
+            ctx.fillStyle = snakeStyles.head.eyeColor;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 瞳孔
+            ctx.fillStyle = snakeStyles.head.pupilColor;
+            ctx.beginPath();
+            ctx.arc(x, y, size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 食物绘制函数
+        function drawFood(food) {
+            ctx.fillStyle = '#FF3B30';
+            ctx.strokeStyle = '#FF2D55';
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            ctx.roundRect(
+                food.x,
+                food.y,
+                BLOCK_SIZE,
+                BLOCK_SIZE,
+                snakeStyles.body.cornerRadius
+            );
+            ctx.fill();
+            ctx.stroke();
+
+            // 添加简单的装饰
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.beginPath();
+            ctx.arc(
+                food.x + BLOCK_SIZE / 3,
+                food.y + BLOCK_SIZE / 3,
+                BLOCK_SIZE / 6,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+        }
+
+        // 开始按钮点击事件
+        startBtn.addEventListener('click', () => {
+            if (!gameRunning) {
+                startGame();
+                updateStartButton(true);
+            }
+        });
+
+        // 全屏按钮点击事件
+        fullscreenBtn.addEventListener('click', () => {
+            toggleFullscreen();
+        });
+
+        // 音频控制函数
+        function toggleMusic() {
+            isMuted = !isMuted;
+            bgMusic.muted = isMuted;
+            eatSound.muted = isMuted;
+            gameOverSound.muted = isMuted;
+            
+            // 更新按钮图标
+            document.querySelector('.sound-on').classList.toggle('hidden');
+            document.querySelector('.sound-off').classList.toggle('hidden');
+        }
+
+        // 添加音乐控制事件监听
+        musicToggleBtn.addEventListener('click', toggleMusic);
+
+        function startGame() {
+            if (!gameRunning) {
+                gameRunning = true;
+                gamePaused = false;
+                resetGame();
+                currentSpeed = GAME_SPEED * speedMultiplier;
+                gameLoop = setInterval(update, 1000 / currentSpeed);
+                
+                // 开始播放背景音乐
+                bgMusic.currentTime = 0;
+                bgMusic.volume = 0.3; // 设置适中的音量
+                bgMusic.play().catch(error => console.log('Audio play failed:', error));
+            }
+        }
+
+        function randomizeFood() {
+            food.x = Math.floor(Math.random() * (canvas.width / BLOCK_SIZE)) * BLOCK_SIZE;
+            food.y = Math.floor(Math.random() * (canvas.height / BLOCK_SIZE)) * BLOCK_SIZE;
+        }
+
+        function update() {
+            // 移动蛇
+            const head = {
+                x: snake.body[0].x + snake.direction.x * BLOCK_SIZE,
+                y: snake.body[0].y + snake.direction.y * BLOCK_SIZE
+            };
+
+            // 检查碰撞
+            if (head.x < 0 || head.x >= canvas.width || 
+                head.y < 0 || head.y >= canvas.height ||
+                snake.body.some(segment => segment.x === head.x && segment.y === head.y)) {
+                gameOver();
+                return;
+            }
+
+            snake.body.unshift(head);
+
+            // 检查是否吃到食物
+            if (head.x === food.x && head.y === food.y) {
+                snake.score += 1;
+                scoreText.textContent = snake.score;
+                randomizeFood();
+                
+                // 播放收集音效
+                eatSound.currentTime = 0;
+                eatSound.volume = 0.4;
+                eatSound.play().catch(error => console.log('Audio play failed:', error));
+            } else {
+                snake.body.pop();
+            }
+
+            render();
+        }
+
+        function render() {
+            // 清空画布
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制蛇
+            drawSnake();
+
+            // 绘制食物
+            drawFood(food);
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(gameLoop);
+            updateStartButton(false);
+            
+            // 停止背景音乐
+            bgMusic.pause();
+            
+            // 播放游戏结束音效
+            gameOverSound.volume = 0.5;
+            gameOverSound.play().catch(error => console.log('Audio play failed:', error));
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Game Over', canvas.width/2, canvas.height/2 - 50);
+            
+            ctx.font = '24px Arial';
+            ctx.fillText(`Final Score: ${snake.score}`, canvas.width/2, canvas.height/2 + 10);
+            ctx.fillText('Press Play Again to try once more!', canvas.width/2, canvas.height/2 + 50);
+        }
+
+        // 键盘控制
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    if (snake.direction.y !== 1) {
+                        snake.direction = {x: 0, y: -1};
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (snake.direction.y !== -1) {
+                        snake.direction = {x: 0, y: 1};
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (snake.direction.x !== 1) {
+                        snake.direction = {x: -1, y: 0};
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (snake.direction.x !== -1) {
+                        snake.direction = {x: 1, y: 0};
+                    }
+                    break;
+            }
+        });
+
+        // 修改全屏切换函数
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                // 进入全屏
+                if (gameContainer.requestFullscreen) {
+                    gameContainer.requestFullscreen();
+                } else if (gameContainer.mozRequestFullScreen) {
+                    gameContainer.mozRequestFullScreen();
+                } else if (gameContainer.webkitRequestFullscreen) {
+                    gameContainer.webkitRequestFullscreen();
+                } else if (gameContainer.msRequestFullscreen) {
+                    gameContainer.msRequestFullscreen();
+                }
+                
+                gameContainer.classList.add('fullscreen-mode');
+                adjustCanvasSize();
+                
+                // 更新全屏按钮
+                fullscreenBtn.innerHTML = `
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                    Exit
+                `;
+            } else {
+                // 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                
+                gameContainer.classList.remove('fullscreen-mode');
+                resetCanvasSize();
+                
+                // 恢复全屏按钮
+                fullscreenBtn.innerHTML = `
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                    </svg>
+                    Fullscreen
+                `;
+            }
+        }
+
+        // 添加画布大小调整函数
+        function adjustCanvasSize() {
+            const canvas = document.getElementById('gameCanvas');
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const gameRatio = canvas.width / canvas.height;
+            const windowRatio = windowWidth / windowHeight;
+
+            if (windowRatio > gameRatio) {
+                // 以高度为基准
+                const height = windowHeight * 0.95;
+                const width = height * gameRatio;
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+            } else {
+                // 以宽度为基准
+                const width = windowWidth * 0.95;
+                const height = width / gameRatio;
+                canvas.style.width = `${width}px`;
+                canvas.style.height = `${height}px`;
+            }
+        }
+
+        // 重置画布大小
+        function resetCanvasSize() {
+            const canvas = document.getElementById('gameCanvas');
+            canvas.style.width = '800px';
+            canvas.style.height = '600px';
+        }
+
+        // 添加窗口大小改变事件监听
+        window.addEventListener('resize', () => {
+            if (document.fullscreenElement) {
+                adjustCanvasSize();
+            }
+        });
+
+        // 添加全屏变化事件监听
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                gameContainer.classList.remove('fullscreen-mode');
+                resetCanvasSize();
+            }
+        });
+
+        // 添加暂停功能
+        function togglePause() {
+            if (!gameRunning) return;
+            
+            gameRunning = false;
+            clearInterval(gameLoop);
+            bgMusic.pause();
+        }
+
+        // 添加音量控制
+        function setVolume(value) {
+            const volume = value / 100;
+            bgMusic.volume = volume;
+            eatSound.volume = volume;
+            gameOverSound.volume = volume;
+        }
+
+        // 速度控制函数
+        function updateSpeed(change) {
+            speedMultiplier = Math.max(0.5, Math.min(2, speedMultiplier + change));
+            currentSpeed = GAME_SPEED * speedMultiplier;
+            document.getElementById('speedIndicator').textContent = `Speed: ${speedMultiplier.toFixed(1)}x`;
+            
+            // 重新设置游戏循环
+            if (gameRunning && !gamePaused) {
+                clearInterval(gameLoop);
+                gameLoop = setInterval(update, 1000 / currentSpeed);
+            }
+        }
+
+        // 添加速度控制事件监听器
+        document.getElementById('speedDownBtn').addEventListener('click', () => updateSpeed(-0.1));
+        document.getElementById('speedUpBtn').addEventListener('click', () => updateSpeed(0.1));
+
+        // 修改 resetGame 函数
+        function resetGame() {
+            snake.body = [{x: 400, y: 300}];
+            snake.direction = {x: 1, y: 0};
+            snake.length = 1;
+            snake.score = 0;
+            speedMultiplier = 1;
+            currentSpeed = GAME_SPEED;
+            document.getElementById('speedIndicator').textContent = 'Speed: 1x';
+            randomizeFood();
+        }
+
+        // 添加键盘控制速度
+        document.addEventListener('keydown', (e) => {
+            if (!gameRunning) return;
+            
+            switch(e.key) {
+                case '-':
+                case '_':
+                    updateSpeed(-0.1);
+                    break;
+                case '=':
+                case '+':
+                    updateSpeed(0.1);
+                    break;
+            }
+        });
+
+        // 修改开始游戏按钮状态
+        function updateStartButton(isPlaying) {
+            const startBtn = document.getElementById('startBtn');
+            if (isPlaying) {
+                startBtn.innerHTML = `
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M4 4v16h16"/>
+                    </svg>
+                    Restart
+                `;
+            } else {
+                startBtn.innerHTML = `
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Start Game
+                `;
+            }
+        }
+
+        // 初始渲染
+        render();
+    </script>
+</body>
+</html>
